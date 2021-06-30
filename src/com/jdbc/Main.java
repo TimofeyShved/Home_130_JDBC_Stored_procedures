@@ -52,10 +52,31 @@ public class Main {
                     "END";
             stmt.executeUpdate(sql); // обновление действий по запросу sql, Хранимые процедуры в бд / create procedure
 
+            // ------------------------------------------------------- Хранимые процедуры
+            sql = "CREATE PROCEDURE getName (i int) " +
+                    "BEGIN " +
+                    "SELECT NAME FROM COMPANY where ID = i; " +
+                    "END";
+            stmt.executeUpdate(sql); // обновление действий по запросу sql, Хранимые процедуры в бд / create procedure
+
             // ------------------------------------------------------- Вызов хранимой процедуры
             CallableStatement callableStatement = c.prepareCall("{call CompanyCount(?)}");
             callableStatement.registerOutParameter(1, java.sql.Types.INTEGER);
             callableStatement.execute();
+
+            System.out.println(callableStatement.getInt(1));
+            System.out.println("--------------------");
+
+            // ------------------------------------------------------- Вызов хранимой процедуры
+            CallableStatement callableStatement2 = c.prepareCall("{call getName(?)}");
+            callableStatement2.setInt(1, 1);
+            if (callableStatement2.execute()){
+                ResultSet resultSet = callableStatement2.getResultSet();
+                while (resultSet.next()){
+                    System.out.println(resultSet.getString("name"));
+                    System.out.println("--------------------");
+                }
+            }
 
             System.out.println(callableStatement.getInt(1));
             System.out.println("--------------------");
