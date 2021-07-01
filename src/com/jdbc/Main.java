@@ -45,21 +45,14 @@ public class Main {
              */
 
 
-            // ------------------------------------------------------- Хранимые процедуры
+            // ------------------------------------------------------- Хранимые процедуры -------------------------- 1
             sql = "CREATE PROCEDURE CompanyCount (OUT cnt INT) " +
                     "BEGIN " +
                         "SELECT count(*) into cnt FROM COMPANY; " +
                     "END";
             stmt.executeUpdate(sql); // обновление действий по запросу sql, Хранимые процедуры в бд / create procedure
 
-            // ------------------------------------------------------- Хранимые процедуры
-            sql = "CREATE PROCEDURE getName (i int) " +
-                    "BEGIN " +
-                    "SELECT NAME FROM COMPANY where ID = i; " +
-                    "END";
-            stmt.executeUpdate(sql); // обновление действий по запросу sql, Хранимые процедуры в бд / create procedure
-
-            // ------------------------------------------------------- Вызов хранимой процедуры
+            // ------------------------------------------------------- Вызов хранимой процедуры 1
             CallableStatement callableStatement = c.prepareCall("{call CompanyCount(?)}");
             callableStatement.registerOutParameter(1, java.sql.Types.INTEGER);
             callableStatement.execute();
@@ -67,20 +60,44 @@ public class Main {
             System.out.println(callableStatement.getInt(1));
             System.out.println("--------------------");
 
-            // ------------------------------------------------------- Вызов хранимой процедуры
+            // ------------------------------------------------------- Хранимые процедуры -------------------------- 2
+            sql = "CREATE PROCEDURE getName (i int) " +
+                    "BEGIN " +
+                    "SELECT NAME FROM COMPANY where ID = i; " +
+                    "END";
+            stmt.executeUpdate(sql); // обновление действий по запросу sql, Хранимые процедуры в бд / create procedure
+
+            // ------------------------------------------------------- Вызов хранимой процедуры 2
             CallableStatement callableStatement2 = c.prepareCall("{call getName(?)}");
             callableStatement2.setInt(1, 1);
             if (callableStatement2.execute()){
                 ResultSet resultSet = callableStatement2.getResultSet();
                 while (resultSet.next()){
                     System.out.println(resultSet.getString("name"));
-                    System.out.println("--------------------");
                 }
             }
-
-            System.out.println(callableStatement.getInt(1));
             System.out.println("--------------------");
 
+            // ------------------------------------------------------- Хранимые процедуры -------------------------- 3
+            sql = "CREATE PROCEDURE getCount () " +
+                    "BEGIN " +
+                    "SELECT count(*) FROM COMPANY; " +
+                    "SELECT count(*) FROM COMPANY; " +
+                    "SELECT count(*) FROM COMPANY; " +
+                    "END";
+            stmt.executeUpdate(sql); // обновление действий по запросу sql, Хранимые процедуры в бд / create procedure
+
+            // ------------------------------------------------------- Вызов хранимой процедуры 3
+            CallableStatement callableStatement3 = c.prepareCall("{call getCount()}");
+            boolean hasReults = callableStatement3.execute();
+            if (hasReults){
+                ResultSet resultSet = callableStatement3.getResultSet();
+                while (resultSet.next()){
+                    System.out.println(resultSet.getInt(1));
+                }
+                hasReults = callableStatement3.getMoreResults(); // проверяем следующий результат
+            }
+            System.out.println("--------------------");
 
             stmt.close();
             c.close();
